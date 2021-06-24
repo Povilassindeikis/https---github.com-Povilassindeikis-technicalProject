@@ -37,8 +37,8 @@ const createSemaphore = (maxReq) => {
 
 const sem = createSemaphore(5);
 
-const getResponse = (priority, id) => {
-  return (done) => {
+const createRequestFn = (priority, id) => {
+  function requestFn(done) {
     $("#list").append(
       `<li id="${id}">Request #${id} status: fetching; Priority: ${priority}</li>`
     );
@@ -49,15 +49,15 @@ const getResponse = (priority, id) => {
       done();
     });
   };
+  return requestFn;
 };
 
 buttonSend.addEventListener("click", function () {
   for (let i = 0; i < 100; i++) {
-    const fn = getResponse("low", i);
+    const fn = createRequestFn("low", i);
     sem.take(fn);
   }
 });
-
 buttonSendPriority.addEventListener("click", function () {
-  sem.takeHighPriority(getResponse("high", "high"));
+  sem.takeHighPriority(createRequestFn("high",Math.floor(Math.random() * 1000)));
 });
